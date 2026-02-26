@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tesla Robotaxi Tracker — Live Data Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #050608;
+  --surface:  #0b0d12;
+  --card:     #0f1219;
+  --border:   #1a1f2e;
+  --red:      #e82127;
+  --red-glow: rgba(232,33,39,0.18);
+  --amber:    #f5a623;
+  --green:    #00d085;
+  --text:     #cdd4e8;
+  --muted:    #4a5270;
+  --faint:    #191f30;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 400;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 2px,
+    rgba(0,0,0,0.06) 2px, rgba(0,0,0,0.06) 4px
+  );
+  pointer-events: none;
+  z-index: 999;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: -200px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 900px;
+  height: 500px;
+  background: radial-gradient(ellipse, rgba(232,33,39,0.05) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ─── HEADER ─── */
+header {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1.75rem 3rem;
+  border-bottom: 1px solid var(--border);
+  background: rgba(5,6,8,0.96);
+  backdrop-filter: blur(16px);
+}
+
+.logo-block h1 {
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(1.3rem, 3vw, 2rem);
+  font-weight: 900;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  line-height: 1;
+  color: #fff;
+}
+
+.logo-block h1 em { color: var(--red); font-style: normal; }
+
+.logo-block p {
+  margin-top: 0.35rem;
+  font-size: 0.62rem;
+  color: var(--muted);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.live-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(232,33,39,0.08);
+  border: 1px solid rgba(232,33,39,0.3);
+  border-radius: 4px;
+  padding: 0.4rem 0.85rem;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: var(--red);
+}
+
+.live-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--red);
+  animation: pulse 1.4s ease-in-out infinite;
+  box-shadow: 0 0 6px var(--red);
+}
+
+@keyframes pulse {
+  0%,100% { opacity:1; transform:scale(1); }
+  50%      { opacity:0.4; transform:scale(0.7); }
+}
+
+/* ─── HERO STATS ─── */
+.hero-stats {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.hero-stat {
+  padding: 1.5rem 1.75rem;
+  border-right: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+.hero-stat:last-child { border-right: none; }
+
+.hero-stat::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--red);
+  transform: scaleX(0);
+  transition: transform 0.7s ease;
+  transform-origin: left;
+}
+.hero-stat.loaded::after { transform: scaleX(1); }
+
+.hs-val {
+  font-family: 'Orbitron', sans-serif;
+  font-size: clamp(1.4rem, 2.5vw, 2rem);
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+  letter-spacing: -1px;
+}
+.hs-val .unit {
+  font-size: 0.5em;
+  color: var(--muted);
+  font-weight: 400;
+  letter-spacing: 1px;
+  margin-left: 3px;
+}
+.hs-label {
+  margin-top: 0.4rem;
+  font-size: 0.6rem;
+  color: var(--muted);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+.hs-note {
+  margin-top: 0.25rem;
+  font-size: 0.63rem;
+  color: var(--amber);
+  font-weight: 500;
+}
+
+/* ─── PAGE LAYOUT ─── */
+.page {
+  position: relative;
+  z-index: 1;
+  max-width: 1380px;
+  margin: 0 auto;
+  padding: 2.5rem 3rem;
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 2rem;
+}
+
+.sec-label {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.sec-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ─── CITY CARDS ─── */
+.city-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.city-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.city-card:hover { transform: translateY(-2px); }
+.city-card.supervised { border-color: rgba(245,166,35,0.2); }
+.city-card.planned    { border-color: rgba(74,82,112,0.4); }
+
+.city-header {
+  padding: 1rem 1.25rem 0.75rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.city-name {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 1px;
+  line-height: 1.2;
+}
+.city-state {
+  font-size: 0.62rem;
+  color: var(--muted);
+  margin-top: 0.2rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+.status-chip {
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 0.2rem 0.55rem;
+  border-radius: 3px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-family: 'Orbitron', sans-serif;
+}
+.chip-supervised { background:rgba(245,166,35,0.1); color:var(--amber); border:1px solid rgba(245,166,35,0.3); }
+.chip-planned    { background:rgba(74,82,112,0.15); color:var(--muted); border:1px solid var(--border); }
+
+.city-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.city-stat {
+  padding: 0.75rem 1.25rem;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.city-stat:nth-child(even)      { border-right: none; }
+.city-stat:nth-last-child(-n+2) { border-bottom: none; }
+
+.cs-val {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+}
+.cs-lbl {
+  font-size: 0.58rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-top: 0.2rem;
+}
+.city-note {
+  padding: 0.6rem 1.25rem;
+  font-size: 0.68rem;
+  color: var(--muted);
+  line-height: 1.55;
+  border-top: 1px solid var(--border);
+  background: rgba(0,0,0,0.15);
+}
+
+/* ─── FLEET CHART ─── */
+.fleet-chart {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+.chart-header {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.chart-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text);
+}
+.chart-sub {
+  font-size: 0.62rem;
+  color: var(--muted);
+}
+.bar-chart { padding: 1.25rem 1.5rem; }
+
+.bchart-row {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  margin-bottom: 0.75rem;
+}
+.bchart-row:last-child { margin-bottom: 0; }
+
+.bchart-date {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  color: var(--muted);
+  width: 68px;
+  flex-shrink: 0;
+  text-align: right;
+}
+.bchart-track {
+  flex: 1;
+  height: 24px;
+  background: var(--faint);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.bchart-fill {
+  height: 100%;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  padding: 0 0.5rem;
+  transition: width 1.2s cubic-bezier(0.23,1,0.32,1);
+  width: 0;
+}
+.bchart-fill span {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: rgba(255,255,255,0.85);
+  white-space: nowrap;
+}
+.bchart-note {
+  font-size: 0.62rem;
+  color: var(--muted);
+  width: 180px;
+  flex-shrink: 0;
+  text-align: left;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+/* ─── PROMISE vs REALITY TABLE ─── */
+.pvr-wrap {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+.pvr-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+}
+.pvr-table th {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.56rem;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 0.65rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.pvr-table th:nth-child(2) { color: var(--amber); }
+.pvr-table th:nth-child(3) { color: #e05060; }
+
+.pvr-table td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid rgba(26,31,46,0.7);
+  vertical-align: top;
+  line-height: 1.55;
+}
+.pvr-table tr:last-child td { border-bottom: none; }
+.pvr-table tr:hover td { background: rgba(255,255,255,0.015); }
+
+.pvr-topic { font-weight: 600; color: #fff; font-size: 0.8rem; }
+.pvr-promised { color: var(--amber); font-size: 0.75rem; }
+.pvr-reality  { color: #e05060; font-weight: 500; font-size: 0.75rem; }
+
+.verdict {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.56rem;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 0.15rem 0.45rem;
+  border-radius: 3px;
+  margin-top: 0.25rem;
+}
+.verdict-miss    { background:rgba(232,33,39,0.1);  color:var(--red);   border:1px solid rgba(232,33,39,0.25); }
+.verdict-partial { background:rgba(245,166,35,0.1); color:var(--amber); border:1px solid rgba(245,166,35,0.25); }
+
+/* ─── SIDEBAR ─── */
+.sidebar { display: flex; flex-direction: column; gap: 1.25rem; }
+
+.side-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.side-card-header {
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.side-card-body { padding: 1rem 1.25rem; }
+
+/* Musk Meter */
+.musk-meter { margin-bottom: 0.85rem; }
+.musk-meter:last-child { margin-bottom: 0; }
+.mm-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.35rem;
+}
+.mm-name { font-size: 0.73rem; font-weight: 600; color: var(--text); }
+.mm-pct  { font-family: 'Orbitron', sans-serif; font-size: 0.68rem; font-weight: 700; }
+.mm-track {
+  height: 7px;
+  background: var(--faint);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.mm-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 1.4s cubic-bezier(0.23,1,0.32,1);
+  width: 0;
+}
+
+/* Timeline */
+.tl { position: relative; padding-left: 1.25rem; }
+.tl::before {
+  content: '';
+  position: absolute;
+  left: 3px; top: 6px; bottom: 6px;
+  width: 1px;
+  background: var(--border);
+}
+.tl-item {
+  position: relative;
+  padding: 0 0 1rem 1rem;
+  opacity: 0;
+  transform: translateY(5px);
+}
+.tl-item.visible { animation: fadeUp 0.45s ease forwards; }
+@keyframes fadeUp { to { opacity:1; transform:none; } }
+.tl-item::before {
+  content: '';
+  position: absolute;
+  left: -5px; top: 6px;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  border: 2px solid var(--bg);
+}
+.tl-item.red::before   { background:var(--red);   box-shadow:0 0 5px var(--red); }
+.tl-item.amber::before { background:var(--amber); }
+.tl-item.grey::before  { background:var(--muted); }
+
+.tl-date {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.54rem;
+  letter-spacing: 2px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 0.1rem;
+}
+.tl-text {
+  font-size: 0.72rem;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+/* Spec rows */
+.spec-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(26,31,46,0.6);
+  font-size: 0.74rem;
+}
+.spec-row:last-child { border-bottom: none; }
+.spec-key { color: var(--muted); font-weight: 500; }
+.spec-val { font-weight: 600; color: var(--text); text-align: right; }
+
+/* City expansion rows */
+.city-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.52rem 0;
+  border-bottom: 1px solid rgba(26,31,46,0.6);
+}
+.city-row:last-child { border-bottom: none; }
+.city-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+.city-row-name { flex:1; font-size:0.74rem; color:var(--text); font-weight:500; }
+.city-row-status {
+  font-size: 0.58rem;
+  font-family: 'Orbitron', sans-serif;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* ─── FOOTER ─── */
+footer {
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid var(--border);
+  padding: 1.25rem 3rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.63rem;
+  color: var(--muted);
+  letter-spacing: 1px;
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 1100px) {
+  .page { grid-template-columns: 1fr; }
+  .hero-stats { grid-template-columns: repeat(3,1fr); }
+}
+@media (max-width: 700px) {
+  header { padding: 1.25rem 1.5rem; }
+  .hero-stats { grid-template-columns: repeat(2,1fr); }
+  .city-grid  { grid-template-columns: 1fr; }
+  .page { padding: 1.5rem; }
+  footer { padding: 1rem 1.5rem; }
+  .bchart-note { display: none; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-block">
+    <h1><em>TESLA</em> ROBOTAXI TRACKER</h1>
+    <p>Fleet · Deployments · Promises vs. Reality · Updated Feb 2026</p>
+  </div>
+  <div class="live-badge">
+    <div class="live-dot"></div>
+    DATA AS OF FEB 2026
+  </div>
+</header>
+
+<div class="hero-stats">
+  <div class="hero-stat">
+    <div class="hs-val">~<span class="counter" data-target="200">0</span><span class="unit">cars</span></div>
+    <div class="hs-label">Total Fleet (Est.)</div>
+    <div class="hs-note">Austin + Bay Area</div>
+  </div>
+  <div class="hero-stat">
+    <div class="hs-val"><span class="counter" data-target="42">0</span><span class="unit">cars</span></div>
+    <div class="hs-label">Austin Active Fleet</div>
+    <div class="hs-note">Per independent trackers</div>
+  </div>
+  <div class="hero-stat">
+    <div class="hs-val"><span class="counter" data-target="19">0</span><span class="unit">%</span></div>
+    <div class="hs-label">Service Availability</div>
+    <div class="hs-note">81% of hours: unavailable</div>
+  </div>
+  <div class="hero-stat">
+    <div class="hs-val">~<span class="counter" data-target="700000">0</span></div>
+    <div class="hs-label">Paid Miles Logged</div>
+    <div class="hs-note">Lifetime, all cities</div>
+  </div>
+  <div class="hero-stat">
+    <div class="hs-val"><span class="unit">$</span>4.20</div>
+    <div class="hs-label">Flat Fare Per Ride</div>
+    <div class="hs-note">Austin only</div>
+  </div>
+</div>
+
+<div class="page">
+  <main>
+
+    <!-- CITY DEPLOYMENTS -->
+    <div class="sec-label">Active Deployments</div>
+    <div class="city-grid">
+
+      <div class="city-card supervised">
+        <div class="city-header">
+          <div>
+            <div class="city-name">AUSTIN</div>
+            <div class="city-state">Texas · Since June 2025</div>
+          </div>
+          <div class="status-chip chip-supervised">Supervised</div>
+        </div>
+        <div class="city-stats">
+          <div class="city-stat"><div class="cs-val">~42</div><div class="cs-lbl">Active Cars</div></div>
+          <div class="city-stat"><div class="cs-val">19%</div><div class="cs-lbl">Availability</div></div>
+          <div class="city-stat"><div class="cs-val">$4.20</div><div class="cs-lbl">Flat Fare</div></div>
+          <div class="city-stat"><div class="cs-val">Model Y</div><div class="cs-lbl">Vehicle</div></div>
+        </div>
+        <div class="city-note">Safety monitor in passenger seat. Service shuts down in rain. Austin averages 80+ rain days/year. Invitation-only via Tesla app. Launched June 2025 with ~10 cars.</div>
+      </div>
+
+      <div class="city-card supervised">
+        <div class="city-header">
+          <div>
+            <div class="city-name">SF BAY AREA</div>
+            <div class="city-state">California · Since Aug 2025</div>
+          </div>
+          <div class="status-chip chip-supervised">Charter / Supervised</div>
+        </div>
+        <div class="city-stats">
+          <div class="city-stat"><div class="cs-val">~150</div><div class="cs-lbl">Est. Fleet</div></div>
+          <div class="city-stat"><div class="cs-val">Human</div><div class="cs-lbl">Driver Present</div></div>
+          <div class="city-stat"><div class="cs-val">Charter</div><div class="cs-lbl">Service Type</div></div>
+          <div class="city-stat"><div class="cs-val">FSD SW</div><div class="cs-lbl">Tech Stack</div></div>
+        </div>
+        <div class="city-note">Human driver uses Full Self-Driving in "charter" mode — not autonomous. Tesla has no CA DMV permit for driverless testing. Different legal structure than Austin.</div>
+      </div>
+
+      <div class="city-card planned">
+        <div class="city-header">
+          <div>
+            <div class="city-name">DALLAS / HOUSTON</div>
+            <div class="city-state">Texas · H1 2026 Target</div>
+          </div>
+          <div class="status-chip chip-planned">Planned</div>
+        </div>
+        <div class="city-stats">
+          <div class="city-stat"><div class="cs-val">0</div><div class="cs-lbl">Cars Active</div></div>
+          <div class="city-stat"><div class="cs-val">H1 2026</div><div class="cs-lbl">Target</div></div>
+          <div class="city-stat"><div class="cs-val">TBD</div><div class="cs-lbl">Fleet Size</div></div>
+          <div class="city-stat"><div class="cs-val">TBD</div><div class="cs-lbl">Launch Date</div></div>
+        </div>
+        <div class="city-note">Announced for H1 2026. No testing underway as of Feb 2026. Texas regulatory climate is favorable, but prior city expansion promises have been missed.</div>
+      </div>
+
+      <div class="city-card planned">
+        <div class="city-header">
+          <div>
+            <div class="city-name">PHOENIX / MIAMI / ORLANDO / TAMPA / LAS VEGAS</div>
+            <div class="city-state">Multi-state · H1 2026 Target</div>
+          </div>
+          <div class="status-chip chip-planned">Planned</div>
+        </div>
+        <div class="city-stats">
+          <div class="city-stat"><div class="cs-val">0</div><div class="cs-lbl">Cars Active</div></div>
+          <div class="city-stat"><div class="cs-val">5</div><div class="cs-lbl">Cities</div></div>
+          <div class="city-stat"><div class="cs-val">H1 2026</div><div class="cs-lbl">Target</div></div>
+          <div class="city-stat"><div class="cs-val">Pending</div><div class="cs-lbl">Permits</div></div>
+        </div>
+        <div class="city-note">Part of Tesla's stated 7-city plan for first half of 2026. Cybercab (no pedals/wheel) production expected to start April 2026 and may power these launches.</div>
+      </div>
+
+    </div>
+
+    <!-- FLEET GROWTH CHART -->
+    <div class="sec-label">Austin Fleet Growth</div>
+    <div class="fleet-chart">
+      <div class="chart-header">
+        <span class="chart-title">Active Vehicles — Austin, TX</span>
+        <span class="chart-sub">Safety-monitored Model Y · max scale = 500 (Musk's Dec 2025 promise)</span>
+      </div>
+      <div class="bar-chart" id="fleet-chart"></div>
+    </div>
+
+    <!-- PROMISE VS REALITY -->
+    <div class="sec-label">Promises vs. Reality</div>
+    <div class="pvr-wrap">
+      <table class="pvr-table">
+        <thead>
+          <tr>
+            <th style="width:18%">Topic</th>
+            <th style="width:34%">🟡 What Musk Promised</th>
+            <th style="width:34%">🔴 What Actually Happened</th>
+            <th style="width:14%">Verdict</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="pvr-topic">Austin Fleet</span></td>
+            <td class="pvr-promised">"500 or more" in Austin by end of 2025 — stated Oct 31 on All-In Podcast</td>
+            <td class="pvr-reality">~42 vehicles active, Feb 2026. Fleet size confirmed by independent tracker</td>
+            <td><div class="verdict verdict-miss">● MISS</div></td>
+          </tr>
+          <tr>
+            <td><span class="pvr-topic">Bay Area Fleet</span></td>
+            <td class="pvr-promised">"1,000 or more" in Bay Area by end of 2025 (All-In Podcast, Oct 31)</td>
+            <td class="pvr-reality">~150 estimated — but most are human-driver charter rides, not autonomous</td>
+            <td><div class="verdict verdict-miss">● MISS</div></td>
+          </tr>
+          <tr>
+            <td><span class="pvr-topic">US Coverage</span></td>
+            <td class="pvr-promised">"Half the US population" covered by robotaxi service by end of 2025 (July 2025)</td>
+            <td class="pvr-reality">Service in 2 cities — Austin + Bay Area. Minuscule fraction of US population</td>
+            <td><div class="verdict verdict-miss">● MISS</div></td>
+          </tr>
+          <tr>
+            <td><span class="pvr-topic">City Count</span></td>
+            <td class="pvr-promised">"8 to 10 metro areas" operating by end of 2025 (Oct 2025)</td>
+            <td class="pvr-reality">2 cities by year-end 2025. 7 more promised for H1 2026</td>
+            <td><div class="verdict verdict-miss">● MISS</div></td>
+          </tr>
+          <tr>
+            <td><span class="pvr-topic">Driverless Ops</span></td>
+            <td class="pvr-promised">Fully unsupervised rides in "large parts of Austin" before end of 2025</td>
+            <td class="pvr-reality">Safety monitor still required Feb 2026. Limited private unsupervised testing only</td>
+            <td><div class="verdict verdict-miss">● MISS</div></td>
+          </tr>
+          <tr>
+            <td><span class="pvr-topic">Austin Launch</span></td>
+            <td class="pvr-promised">"Driverless rides in Austin with no one in them by June 2025" (Q4 2024 earnings)</td>
+            <td class="pvr-reality">Launched June 2025 ✓ but with safety monitor in seat — not driverless as stated</td>
+            <td><div class="verdict verdict-partial">◐ PARTIAL</div></td>
+          </tr>
+          <tr>
+            <td><span class="pvr-topic">Crash Rate</span></td>
+            <td class="pvr-promised">Tesla's camera-only AI will be safer than human drivers</td>
+            <td class="pvr-reality">Independent analysis: crash rate 9× worse than human drivers in Austin service area. Tesla redacts all NHTSA crash report narratives — only AV company to do so</td>
+            <td><div class="verdict verdict-miss">● MISS</div></td>
+          </tr>
+          <tr>
+            <td><span class="pvr-topic">Cybercab Prod.</span></td>
+            <td class="pvr-promised">Cybercab mass production starting April 2026 (Jan 2026 Q4 earnings call)</td>
+            <td class="pvr-reality">Target set. Production not yet started as of Feb 2026. Currently using Model Y</td>
+            <td><div class="verdict verdict-partial">◐ PENDING</div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </main>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+
+    <div class="side-card">
+      <div class="side-card-header">Musk Promise Accuracy</div>
+      <div class="side-card-body" id="musk-meter"></div>
+    </div>
+
+    <div class="side-card">
+      <div class="side-card-header">Key Milestones</div>
+      <div class="side-card-body">
+        <div class="tl" id="timeline"></div>
+      </div>
+    </div>
+
+    <div class="side-card">
+      <div class="side-card-header">Current Fleet — Model Y</div>
+      <div class="side-card-body">
+        <div class="spec-row"><span class="spec-key">Vehicle</span><span class="spec-val">Tesla Model Y HW4</span></div>
+        <div class="spec-row"><span class="spec-key">Sensors</span><span class="spec-val">8 Cameras only</span></div>
+        <div class="spec-row"><span class="spec-key">LiDAR / Radar</span><span class="spec-val">None</span></div>
+        <div class="spec-row"><span class="spec-key">Safety Monitor</span><span class="spec-val">Yes — front seat</span></div>
+        <div class="spec-row"><span class="spec-key">SAE Level</span><span class="spec-val">Level 2 / 2+</span></div>
+        <div class="spec-row"><span class="spec-key">All-weather ops</span><span class="spec-val">No — stops in rain</span></div>
+        <div class="spec-row"><span class="spec-key">Next: Cybercab</span><span class="spec-val">No pedals or wheel</span></div>
+        <div class="spec-row"><span class="spec-key">Cybercab Prod.</span><span class="spec-val">Target: Apr 2026</span></div>
+      </div>
+    </div>
+
+    <div class="side-card">
+      <div class="side-card-header">2026 Expansion Cities</div>
+      <div class="side-card-body" id="expansion-cities"></div>
+    </div>
+
+  </aside>
+</div>
+
+<footer>
+  <span>Sources: Electrek · Futurism · Nasdaq · Robotaxi Tracker · Tesla Q4 2025 Earnings · NHTSA</span>
+  <span>Not affiliated with Tesla, Inc. · Data as of February 2026</span>
+</footer>
+
+<script>
+// ─── COUNTER ANIMATION
+function animateCounter(el) {
+  const target = +el.dataset.target;
+  const duration = 1500;
+  const start = performance.now();
+  const large = target > 9999;
+  (function step(now) {
+    const p = Math.min((now - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - p, 3);
+    el.textContent = large ? Math.round(ease * target).toLocaleString() : Math.round(ease * target);
+    if (p < 1) requestAnimationFrame(step);
+  })(start);
+}
+
+setTimeout(() => {
+  document.querySelectorAll('.hero-stat').forEach((el, i) =>
+    setTimeout(() => el.classList.add('loaded'), i * 100)
+  );
+  document.querySelectorAll('.counter').forEach(el => animateCounter(el));
+}, 250);
+
+// ─── FLEET GROWTH CHART
+// Scale: 500 = 100% (Musk's Austin promise)
+const fleetData = [
+  { date: 'JUN 2025', cars: 10,   pct: 2,    note: 'Launch — ~10 Model Ys' },
+  { date: 'AUG 2025', cars: 15,   pct: 3,    note: '50% expansion; monitor moved to driver seat' },
+  { date: 'OCT 2025', cars: 30,   pct: 6,    note: 'Musk promises 500 by Dec 2025' },
+  { date: 'DEC 2025', cars: 42,   pct: 8.4,  note: '"Doubled" — 500 promise missed by ~92%' },
+  { date: 'FEB 2026', cars: 42,   pct: 8.4,  note: 'Stagnant; 19% availability rate' },
+  { date: 'APR 2026', cars: null, pct: 100,  note: 'Cybercab production target (unconfirmed)', pending: true },
+];
+
+const chartEl = document.getElementById('fleet-chart');
+fleetData.forEach(d => {
+  const isPending = !!d.pending;
+  const row = document.createElement('div');
+  row.className = 'bchart-row';
+  row.innerHTML = `
+    <div class="bchart-date">${d.date}</div>
+    <div class="bchart-track">
+      <div class="bchart-fill" style="background:${isPending ? 'linear-gradient(90deg,#1a1f2e,#2a2f42)' : 'linear-gradient(90deg,#c0181d,#ff4a50)'};width:${d.pct}%" data-w="${d.pct}%">
+        <span>${isPending ? 'CYBERCAB PROD TARGET' : d.cars + ' cars'}</span>
+      </div>
+    </div>
+    <div class="bchart-note">${d.note}</div>
+  `;
+  chartEl.appendChild(row);
+});
+
+setTimeout(() => {
+  document.querySelectorAll('.bchart-fill').forEach(el => {
+    const w = el.style.width;
+    el.style.width = '0';
+    requestAnimationFrame(() => requestAnimationFrame(() => { el.style.width = w; }));
+  });
+}, 150);
+
+// ─── MUSK METER
+const promises = [
+  { label: 'Austin fleet: 500 cars',       pct: 8,  color: '#e82127' },
+  { label: 'Bay Area fleet: 1,000 cars',   pct: 15, color: '#e82127' },
+  { label: 'Half US pop. covered',          pct: 1,  color: '#e82127' },
+  { label: '8–10 cities by end 2025',       pct: 20, color: '#e82127' },
+  { label: 'Unsupervised Austin ops',       pct: 10, color: '#f5a623' },
+  { label: 'Austin launch (with caveats)',  pct: 65, color: '#f5a623' },
+];
+
+const meterEl = document.getElementById('musk-meter');
+promises.forEach(p => {
+  const d = document.createElement('div');
+  d.className = 'musk-meter';
+  d.innerHTML = `
+    <div class="mm-label">
+      <span class="mm-name">${p.label}</span>
+      <span class="mm-pct" style="color:${p.color}">${p.pct}%</span>
+    </div>
+    <div class="mm-track">
+      <div class="mm-fill" style="background:${p.color};width:0" data-w="${p.pct}%"></div>
+    </div>
+  `;
+  meterEl.appendChild(d);
+});
+
+setTimeout(() => {
+  document.querySelectorAll('.mm-fill').forEach(el => { el.style.width = el.dataset.w; });
+}, 400);
+
+// ─── TIMELINE
+const events = [
+  { date: 'OCT 2024', text: 'Cybercab unveiled at "We, Robot" event. Musk promises full autonomy "by 2025."', cls: 'red' },
+  { date: 'JAN 2025', text: 'Q4 2024 earnings: "Driverless rides in Austin with no one in them by June 2025."', cls: 'amber' },
+  { date: 'JUN 2025', text: 'Austin launch with ~10 Model Ys and safety monitor in seat. $4.20 flat fare.', cls: 'amber' },
+  { date: 'JUL 2025', text: 'Musk: "half of US population" covered by robotaxi by year-end. (Austin only at time.)', cls: 'red' },
+  { date: 'AUG 2025', text: 'SF Bay Area "charter" service begins with human FSD drivers.', cls: 'amber' },
+  { date: 'OCT 2025', text: 'All-In Podcast: 500 Austin cars + 1,000 Bay Area by year-end. 8–10 cities.', cls: 'red' },
+  { date: 'NOV 2025', text: '~30 cars in Austin. Musk: fleet will "roughly double" next month.', cls: 'amber' },
+  { date: 'DEC 2025', text: '~42 cars. Limited private unsupervised testing begins. 500-car target missed.', cls: 'amber' },
+  { date: 'JAN 2026', text: 'Q4 earnings: Cybercab production April 2026. 7 new cities planned H1 2026.', cls: 'red' },
+  { date: 'FEB 2026', text: '~42 cars, 19% availability, crash rate 9× human average per analysis. 8 months in.', cls: 'grey' },
+];
+
+const tlEl = document.getElementById('timeline');
+events.forEach((e, i) => {
+  const div = document.createElement('div');
+  div.className = `tl-item ${e.cls}`;
+  div.style.animationDelay = `${i * 0.06}s`;
+  div.innerHTML = `<div class="tl-date">${e.date}</div><div class="tl-text">${e.text}</div>`;
+  tlEl.appendChild(div);
+});
+setTimeout(() => {
+  document.querySelectorAll('.tl-item').forEach(el => el.classList.add('visible'));
+}, 450);
+
+// ─── EXPANSION CITIES
+const cities = [
+  { name: 'Austin, TX',      status: 'LIVE',    color: '#f5a623' },
+  { name: 'SF Bay Area, CA', status: 'CHARTER', color: '#f5a623' },
+  { name: 'Phoenix, AZ',     status: 'NEXT',    color: '#e82127' },
+  { name: 'Dallas, TX',      status: 'H1 2026', color: '#4a5270' },
+  { name: 'Houston, TX',     status: 'H1 2026', color: '#4a5270' },
+  { name: 'Miami, FL',       status: 'H1 2026', color: '#4a5270' },
+  { name: 'Orlando, FL',     status: 'H1 2026', color: '#4a5270' },
+  { name: 'Tampa, FL',       status: 'H1 2026', color: '#4a5270' },
+  { name: 'Las Vegas, NV',   status: 'H1 2026', color: '#4a5270' },
+];
+
+const expEl = document.getElementById('expansion-cities');
+cities.forEach(c => {
+  const row = document.createElement('div');
+  row.className = 'city-row';
+  row.innerHTML = `
+    <div class="city-dot" style="background:${c.color};box-shadow:0 0 4px ${c.color}66"></div>
+    <span class="city-row-name">${c.name}</span>
+    <span class="city-row-status" style="color:${c.color}">${c.status}</span>
+  `;
+  expEl.appendChild(row);
+});
+</script>
+</body>
+</html>
