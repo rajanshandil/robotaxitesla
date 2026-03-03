@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tesla Robotaxi Tracker — Live Data Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg:       #050608;
@@ -26,10 +26,11 @@ html { scroll-behavior:smooth; }
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: 'Rajdhani', sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-weight: 400;
   overflow-x: hidden;
   min-height: 100vh;
+  line-height: 1.6;
 }
 
 body::after {
@@ -73,12 +74,12 @@ header {
 }
 
 .logo-block h1 {
-  font-family: 'Orbitron', sans-serif;
-  font-size: clamp(1.3rem, 3vw, 2rem);
-  font-weight: 900;
-  letter-spacing: 2px;
+  font-family: 'Space Mono', monospace;
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  font-weight: 700;
+  letter-spacing: 1px;
   text-transform: uppercase;
-  line-height: 1;
+  line-height: 1.2;
   color: #fff;
 }
 
@@ -101,7 +102,7 @@ header {
   border: 1px solid rgba(232,33,39,0.3);
   border-radius: 4px;
   padding: 0.4rem 0.85rem;
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Space Mono', monospace;
   font-size: 0.58rem;
   font-weight: 600;
   letter-spacing: 2px;
@@ -152,12 +153,12 @@ header {
 .hero-stat.loaded::after { transform: scaleX(1); }
 
 .hs-val {
-  font-family: 'Orbitron', sans-serif;
-  font-size: clamp(1.4rem, 2.5vw, 2rem);
+  font-family: 'Space Mono', monospace;
+  font-size: clamp(1.6rem, 2.8vw, 2.2rem);
   font-weight: 700;
   color: #fff;
-  line-height: 1;
-  letter-spacing: -1px;
+  line-height: 1.2;
+  letter-spacing: 0px;
 }
 .hs-val .unit {
   font-size: 0.5em;
@@ -194,7 +195,7 @@ header {
 }
 
 .sec-label {
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Space Mono', monospace;
   font-size: 0.58rem;
   font-weight: 600;
   letter-spacing: 4px;
@@ -240,12 +241,12 @@ header {
   border-bottom: 1px solid var(--border);
 }
 .city-name {
-  font-family: 'Orbitron', sans-serif;
-  font-size: 0.85rem;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.95rem;
   font-weight: 700;
   color: #fff;
-  letter-spacing: 1px;
-  line-height: 1.2;
+  letter-spacing: 0px;
+  line-height: 1.3;
 }
 .city-state {
   font-size: 0.62rem;
@@ -263,7 +264,7 @@ header {
   border-radius: 3px;
   white-space: nowrap;
   flex-shrink: 0;
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Space Mono', monospace;
 }
 .chip-supervised { background:rgba(245,166,35,0.1); color:var(--amber); border:1px solid rgba(245,166,35,0.3); }
 .chip-planned    { background:rgba(74,82,112,0.15); color:var(--muted); border:1px solid var(--border); }
@@ -281,7 +282,7 @@ header {
 .city-stat:nth-last-child(-n+2) { border-bottom: none; }
 
 .cs-val {
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Space Mono', monospace;
   font-size: 1.05rem;
   font-weight: 700;
   color: #fff;
@@ -295,10 +296,10 @@ header {
   margin-top: 0.2rem;
 }
 .city-note {
-  padding: 0.6rem 1.25rem;
-  font-size: 0.68rem;
+  padding: 0.8rem 1.25rem;
+  font-size: 0.8rem;
   color: var(--muted);
-  line-height: 1.55;
+  line-height: 1.65;
   border-top: 1px solid var(--border);
   background: rgba(0,0,0,0.15);
 }
@@ -321,7 +322,7 @@ header {
   gap: 0.5rem;
 }
 .chart-title {
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Space Mono', monospace;
   font-size: 0.62rem;
   font-weight: 600;
   letter-spacing: 2px;
@@ -343,7 +344,7 @@ header {
 .bchart-row:last-child { margin-bottom: 0; }
 
 .bchart-date {
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Space Mono', monospace;
   font-size: 0.58rem;
   font-weight: 600;
   letter-spacing: 1px;
@@ -369,7 +370,7 @@ header {
   width: 0;
 }
 .bchart-fill span {
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Space Mono', monospace;
   font-size: 0.62rem;
   font-weight: 700;
   color: rgba(255,255,255,0.85);
@@ -396,10 +397,11 @@ header {
 .pvr-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.78rem;
+  font-size: 0.9rem;
+  line-height: 1.7;
 }
 .pvr-table th {
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Space Mono', monospace;
   font-size: 0.56rem;
   letter-spacing: 2.5px;
   text-transform: uppercase;
@@ -430,7 +432,7 @@ header {
   align-items: center;
   gap: 0.3rem;
   font-size: 0.56rem;
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Space Mono', monospace;
   font-weight: 600;
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -454,7 +456,7 @@ header {
   padding: 0.85rem 1.25rem;
   border-bottom: 1px solid var(--border);
   background: var(--surface);
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Space Mono', monospace;
   font-size: 0.58rem;
   font-weight: 600;
   letter-spacing: 2.5px;
@@ -472,8 +474,8 @@ header {
   align-items: baseline;
   margin-bottom: 0.35rem;
 }
-.mm-name { font-size: 0.73rem; font-weight: 600; color: var(--text); }
-.mm-pct  { font-family: 'Orbitron', sans-serif; font-size: 0.68rem; font-weight: 700; }
+.mm-name { font-size: 0.85rem; font-weight: 600; color: var(--text); line-height: 1.5; }
+.mm-pct  { font-family: 'Space Mono', monospace; font-size: 0.68rem; font-weight: 700; }
 .mm-track {
   height: 7px;
   background: var(--faint);
@@ -517,7 +519,7 @@ header {
 .tl-item.grey::before  { background:var(--muted); }
 
 .tl-date {
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Space Mono', monospace;
   font-size: 0.54rem;
   letter-spacing: 2px;
   color: var(--muted);
@@ -525,9 +527,9 @@ header {
   margin-bottom: 0.1rem;
 }
 .tl-text {
-  font-size: 0.72rem;
+  font-size: 0.82rem;
   color: var(--text);
-  line-height: 1.5;
+  line-height: 1.65;
 }
 
 /* Spec rows */
@@ -535,9 +537,10 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  padding: 0.5rem 0;
+  padding: 0.65rem 0;
   border-bottom: 1px solid rgba(26,31,46,0.6);
-  font-size: 0.74rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
 }
 .spec-row:last-child { border-bottom: none; }
 .spec-key { color: var(--muted); font-weight: 500; }
@@ -548,15 +551,16 @@ header {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.52rem 0;
+  padding: 0.65rem 0;
   border-bottom: 1px solid rgba(26,31,46,0.6);
+  line-height: 1.5;
 }
 .city-row:last-child { border-bottom: none; }
 .city-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
-.city-row-name { flex:1; font-size:0.74rem; color:var(--text); font-weight:500; }
+.city-row-name { flex:1; font-size:0.85rem; color:var(--text); font-weight:500; }
 .city-row-status {
   font-size: 0.58rem;
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Space Mono', monospace;
   letter-spacing: 0.5px;
   text-transform: uppercase;
 }
@@ -597,19 +601,19 @@ footer {
 <header>
   <div class="logo-block">
     <h1><em>TESLA</em> ROBOTAXI TRACKER</h1>
-    <p>Fleet · Deployments · Promises vs. Reality · Updated Feb 2026</p>
+    <p>Fleet · Deployments · Promises vs. Reality · Updated Mar 2026</p>
   </div>
   <div class="live-badge">
     <div class="live-dot"></div>
-    DATA AS OF FEB 2026
+    DATA AS OF MAR 2026
   </div>
 </header>
 
 <div class="hero-stats">
   <div class="hero-stat">
-    <div class="hs-val">~<span class="counter" data-target="200">0</span><span class="unit">cars</span></div>
-    <div class="hs-label">Total Fleet (Est.)</div>
-    <div class="hs-note">Austin + Bay Area</div>
+    <div class="hs-val"><span class="counter" data-target="200">0</span><span class="unit">cars</span></div>
+    <div class="hs-label">Confirmed Fleet</div>
+    <div class="hs-note">Austin + Bay Area (visible)</div>
   </div>
   <div class="hero-stat">
     <div class="hs-val"><span class="counter" data-target="42">0</span><span class="unit">cars</span></div>
@@ -663,15 +667,15 @@ footer {
             <div class="city-name">SF BAY AREA</div>
             <div class="city-state">California · Since Aug 2025</div>
           </div>
-          <div class="status-chip chip-supervised">Charter / Supervised</div>
+          <div class="status-chip chip-supervised">Supervised</div>
         </div>
         <div class="city-stats">
-          <div class="city-stat"><div class="cs-val">~150</div><div class="cs-lbl">Est. Fleet</div></div>
-          <div class="city-stat"><div class="cs-val">Human</div><div class="cs-lbl">Driver Present</div></div>
-          <div class="city-stat"><div class="cs-val">Charter</div><div class="cs-lbl">Service Type</div></div>
-          <div class="city-stat"><div class="cs-val">FSD SW</div><div class="cs-lbl">Tech Stack</div></div>
+          <div class="city-stat"><div class="cs-val">~158</div><div class="cs-lbl">Confirmed Fleet</div></div>
+          <div class="city-stat"><div class="cs-val">Mixed</div><div class="cs-lbl">Operations</div></div>
+          <div class="city-stat"><div class="cs-val">Hybrid</div><div class="cs-lbl">Charter + FSD</div></div>
+          <div class="city-stat"><div class="cs-val">Supervised</div><div class="cs-lbl">Status</div></div>
         </div>
-        <div class="city-note">Human driver uses Full Self-Driving in "charter" mode — not autonomous. Tesla has no CA DMV permit for driverless testing. Different legal structure than Austin.</div>
+        <div class="city-note">~158 vehicles tracked as of Mar 2026. Tesla's CPUC filing claims 1,655 registered vehicles for Bay Area, suggesting much larger fleet than visible tracking shows.</div>
       </div>
 
       <div class="city-card planned">
@@ -778,8 +782,14 @@ footer {
           <tr>
             <td><span class="pvr-topic">Cybercab Prod.</span></td>
             <td class="pvr-promised">Cybercab mass production starting April 2026 (Jan 2026 Q4 earnings call)</td>
-            <td class="pvr-reality">Target set. Production not yet started as of Feb 2026. Currently using Model Y</td>
-            <td><div class="verdict verdict-partial">◐ PENDING</div></td>
+            <td class="pvr-reality">Production began Feb 2026 — several weeks ahead of target. First units rolling off line</td>
+            <td><div class="verdict verdict-partial">◐ AHEAD</div></td>
+          </tr>
+          <tr>
+            <td><span class="pvr-topic">Fleet Transparency</span></td>
+            <td class="pvr-promised">Clear, verifiable fleet numbers in independent reports</td>
+            <td class="pvr-reality">Dec 2025 CPUC filing: 1,655 registered vehicles in Bay Area vs. ~158 visible. 8.5× discrepancy</td>
+            <td><div class="verdict verdict-miss">● MISS</div></td>
           </tr>
         </tbody>
       </table>
@@ -826,7 +836,7 @@ footer {
 
 <footer>
   <span>Sources: Electrek · Futurism · Nasdaq · Robotaxi Tracker · Tesla Q4 2025 Earnings · NHTSA</span>
-  <span>Not affiliated with Tesla, Inc. · Data as of February 2026</span>
+  <span>Not affiliated with Tesla, Inc. · Data as of March 2026</span>
 </footer>
 
 <script>
@@ -859,7 +869,8 @@ const fleetData = [
   { date: 'OCT 2025', cars: 30,   pct: 6,    note: 'Musk promises 500 by Dec 2025' },
   { date: 'DEC 2025', cars: 42,   pct: 8.4,  note: '"Doubled" — 500 promise missed by ~92%' },
   { date: 'FEB 2026', cars: 42,   pct: 8.4,  note: 'Stagnant; 19% availability rate' },
-  { date: 'APR 2026', cars: null, pct: 100,  note: 'Cybercab production target (unconfirmed)', pending: true },
+  { date: 'MAR 2026', cars: 200,  pct: 40,   note: '200 confirmed across both cities (42 Austin + 158 Bay Area)' },
+  { date: 'FEB 2026', cars: null, pct: 15,   note: 'First production Cybercab rolled off line (ahead of April target)', pending: true },
 ];
 
 const chartEl = document.getElementById('fleet-chart');
@@ -929,6 +940,8 @@ const events = [
   { date: 'DEC 2025', text: '~42 cars. Limited private unsupervised testing begins. 500-car target missed.', cls: 'amber' },
   { date: 'JAN 2026', text: 'Q4 earnings: Cybercab production April 2026. 7 new cities planned H1 2026.', cls: 'red' },
   { date: 'FEB 2026', text: '~42 cars, 19% availability, crash rate 9× human average per analysis. 8 months in.', cls: 'grey' },
+  { date: 'FEB 2026', text: 'First production Cybercab begins manufacturing — several weeks ahead of April target.', cls: 'red' },
+  { date: 'MAR 2026', text: '200 vehicles confirmed: ~42 Austin + ~158 Bay Area. CPUC filing shows 1,655 registered (hidden fleet).', cls: 'red' },
 ];
 
 const tlEl = document.getElementById('timeline');
