@@ -611,9 +611,9 @@ footer {
 
 <div class="hero-stats">
   <div class="hero-stat">
-    <div class="hs-val">~<span class="counter" data-target="200">0</span><span class="unit">cars</span></div>
-    <div class="hs-label">Total Fleet (Est.)</div>
-    <div class="hs-note">Austin + Bay Area</div>
+    <div class="hs-val"><span class="counter" data-target="200">0</span><span class="unit">cars</span></div>
+    <div class="hs-label">Confirmed Fleet</div>
+    <div class="hs-note">Austin + Bay Area (visible)</div>
   </div>
   <div class="hero-stat">
     <div class="hs-val"><span class="counter" data-target="42">0</span><span class="unit">cars</span></div>
@@ -667,15 +667,15 @@ footer {
             <div class="city-name">SF BAY AREA</div>
             <div class="city-state">California · Since Aug 2025</div>
           </div>
-          <div class="status-chip chip-supervised">Charter / Supervised</div>
+          <div class="status-chip chip-supervised">Supervised</div>
         </div>
         <div class="city-stats">
-          <div class="city-stat"><div class="cs-val">~150</div><div class="cs-lbl">Est. Fleet</div></div>
-          <div class="city-stat"><div class="cs-val">Human</div><div class="cs-lbl">Driver Present</div></div>
-          <div class="city-stat"><div class="cs-val">Charter</div><div class="cs-lbl">Service Type</div></div>
-          <div class="city-stat"><div class="cs-val">FSD SW</div><div class="cs-lbl">Tech Stack</div></div>
+          <div class="city-stat"><div class="cs-val">~158</div><div class="cs-lbl">Confirmed Fleet</div></div>
+          <div class="city-stat"><div class="cs-val">Mixed</div><div class="cs-lbl">Operations</div></div>
+          <div class="city-stat"><div class="cs-val">Hybrid</div><div class="cs-lbl">Charter + FSD</div></div>
+          <div class="city-stat"><div class="cs-val">Supervised</div><div class="cs-lbl">Status</div></div>
         </div>
-        <div class="city-note">Human driver uses Full Self-Driving in "charter" mode — not autonomous. Tesla has no CA DMV permit for driverless testing. Different legal structure than Austin.</div>
+        <div class="city-note">~158 vehicles tracked as of Mar 2026. Tesla's CPUC filing claims 1,655 registered vehicles for Bay Area, suggesting much larger fleet than visible tracking shows.</div>
       </div>
 
       <div class="city-card planned">
@@ -782,8 +782,14 @@ footer {
           <tr>
             <td><span class="pvr-topic">Cybercab Prod.</span></td>
             <td class="pvr-promised">Cybercab mass production starting April 2026 (Jan 2026 Q4 earnings call)</td>
-            <td class="pvr-reality">Target set. Production not yet started as of Feb 2026. Currently using Model Y</td>
-            <td><div class="verdict verdict-partial">◐ PENDING</div></td>
+            <td class="pvr-reality">Production began Feb 2026 — several weeks ahead of target. First units rolling off line</td>
+            <td><div class="verdict verdict-partial">◐ AHEAD</div></td>
+          </tr>
+          <tr>
+            <td><span class="pvr-topic">Fleet Transparency</span></td>
+            <td class="pvr-promised">Clear, verifiable fleet numbers in independent reports</td>
+            <td class="pvr-reality">Dec 2025 CPUC filing: 1,655 registered vehicles in Bay Area vs. ~158 visible. 8.5× discrepancy</td>
+            <td><div class="verdict verdict-miss">● MISS</div></td>
           </tr>
         </tbody>
       </table>
@@ -863,8 +869,8 @@ const fleetData = [
   { date: 'OCT 2025', cars: 30,   pct: 6,    note: 'Musk promises 500 by Dec 2025' },
   { date: 'DEC 2025', cars: 42,   pct: 8.4,  note: '"Doubled" — 500 promise missed by ~92%' },
   { date: 'FEB 2026', cars: 42,   pct: 8.4,  note: 'Stagnant; 19% availability rate' },
-  { date: 'MAR 2026', cars: 42,   pct: 8.4,  note: 'No growth; service remains limited' },
-  { date: 'APR 2026', cars: null, pct: 100,  note: 'Cybercab production target (unconfirmed)', pending: true },
+  { date: 'MAR 2026', cars: 200,  pct: 40,   note: '200 confirmed across both cities (42 Austin + 158 Bay Area)' },
+  { date: 'FEB 2026', cars: null, pct: 15,   note: 'First production Cybercab rolled off line (ahead of April target)', pending: true },
 ];
 
 const chartEl = document.getElementById('fleet-chart');
@@ -934,7 +940,8 @@ const events = [
   { date: 'DEC 2025', text: '~42 cars. Limited private unsupervised testing begins. 500-car target missed.', cls: 'amber' },
   { date: 'JAN 2026', text: 'Q4 earnings: Cybercab production April 2026. 7 new cities planned H1 2026.', cls: 'red' },
   { date: 'FEB 2026', text: '~42 cars, 19% availability, crash rate 9× human average per analysis. 8 months in.', cls: 'grey' },
-  { date: 'MAR 2026', text: 'Fleet remains at ~42 cars. No expansion progress. Cybercab production target in April.', cls: 'amber' },
+  { date: 'FEB 2026', text: 'First production Cybercab begins manufacturing — several weeks ahead of April target.', cls: 'red' },
+  { date: 'MAR 2026', text: '200 vehicles confirmed: ~42 Austin + ~158 Bay Area. CPUC filing shows 1,655 registered (hidden fleet).', cls: 'red' },
 ];
 
 const tlEl = document.getElementById('timeline');
